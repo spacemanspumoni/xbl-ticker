@@ -641,8 +641,9 @@
                     value: Number.parseInt(row[statRowIndex])
                 }
             }
-            return statLeaders
-                .sort((a, b) => a.value < b.value)
+
+           return statLeaders
+                .sort((a, b) => b.value - a.value)
                 .slice(0, 10);
         }
 
