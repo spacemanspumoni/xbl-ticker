@@ -559,8 +559,8 @@
                 [aaaStandingsUrl]: (json) => { aaaStandings = populateStandings(json); },
                 [aaaHittingUrl]: (json) => { aaaHrLeaders = populateStatLeaders(json, 7); },
                 [aaaPitchingUrl]: (json) => { aaaKLeaders = populateStatLeaders(json, 9); },
-                [aaBoxScoresUrl]: (json) => { recentAAScores = populateScores(json, true); },
-                [aaStandingsUrl]: (json) => { aaStandings = populateStandings(json); },
+                [aaBoxScoresUrl]: (json) => { recentAAScores = populateScores(json); },
+                [aaStandingsUrl]: (json) => { aaStandings = populateStandings(json, true); },
                 [aaHittingUrl]: (json) => { aaHrLeaders = populateStatLeaders(json, 7); },
                 [aaPitchingUrl]: (json) => { aaKLeaders = populateStatLeaders(json, 9); },
             };
