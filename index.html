@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XBL Ticker</title>
+    <style>
+        body {
+            background-color: #00ff00;
+        }
+
+        .ticker-background {
+            display: flex;
+            align-items: flex-start;
+            position: fixed;
+            bottom: 0;
+            background-image: linear-gradient(to top, #8b0000, #323c4d);
+            color: white;
+            text-align: center;
+            font-size: 18px;
+            z-index: 9999;
+            min-height: 72px;
+            max-height: 72px;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .ticker-background {
+                font-size: 13px;
+                min-height: 54px;
+                max-height: 54px;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .ticker-background {
+                font-size: 8.6px;
+                min-height: 36px;
+                max-height: 36px;
+            }
+        }
+
+        .ticker-container {
+            left: 0;
+            width: 80%;
+        }
+
+        .marquee-container {
+            right: 0;
+            width: 20%;
+        }
+
+        .league-logo {
+            max-height: 56px;
+            padding: 8px;
+            vertical-align: middle;
+            display: none;
+            animation: logoentrance 2s ease 0s 1 normal forwards;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .league-logo {
+                max-height: 42px;
+                padding: 6px;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .league-logo {
+                max-height: 28px;
+                padding: 4px;
+            }
+        }
+
+        .team {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 2;
+            justify-content: flex-start;
+        }
+
+        .team-info {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            border-left: 2px solid white;
+            animation: entrance 2s ease 0s 1 normal forwards;
+        }
+
+        .team-logo {
+            max-height: 56px;
+            width: auto;
+            height: auto;
+            margin: auto;
+            padding: 0 1rem;
+            animation: entrance 2s ease 0s 1 normal forwards;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .team-logo {
+                max-height: 42px;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .team-logo {
+                max-height: 28px;
+            }
+        }
+
+        .team-season {
+            padding-left: 1rem;
+            font-size: 1.5rem !important;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .team-season {
+                font-size: 1.125rem !important;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .team-season {
+                font-size: 0.75rem !important;
+            }
+        }
+
+        .team-score {
+            margin-left: auto;
+            padding-right: 1rem;
+        }
+
+        .main-text {
+            font-family: 'Oswald';
+            font-size: 3rem;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .main-text {
+                font-size: 2.25rem;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .main-text {
+                font-size: 1.5rem;
+            }
+        }
+
+        .scoreboard-text {
+            white-space: nowrap;
+            overflow: hidden;
+            display: inline-block;
+            animation: entrance 2s ease 0s 1 normal forwards;
+        }
+
+        .season {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .space-filler {
+            min-height: 40%;
+        }
+
+        .bookend-container {
+            min-width: 12%;
+            border-left: 2px solid white;
+        }
+
+        .bookend-text {
+            white-space: nowrap;
+            overflow: hidden;
+            display: none;
+            animation: logoentrance 2s ease 0s 1 normal forwards;
+        }
+
+        .leader-container {
+            display: flex;
+            min-height: 72px;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .leader-container {
+                min-height: 54px;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .leader-container {
+                min-height: 36px;
+            }
+        }
+
+        .leader-rank {
+            font-family: 'Oswald';
+            font-size: 2rem;
+            align-self: flex-end;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .leader-rank {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .leader-rank {
+                font-size: 1rem;
+            }
+        }
+
+        .leader-stat-team-logo {
+            max-height: 56px;
+            width: auto;
+            height: auto;
+            padding: 0 1rem;
+            align-self: center;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .leader-stat-team-logo {
+                max-height: 42px;
+                padding: 0 .75rem;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .leader-stat-team-logo {
+                max-height: 28px;
+                padding: 0 .5rem;
+            }
+        }
+        
+        .leader-stat-amount {
+            font-family: 'Oswald';
+            font-size: 3rem;
+            align-self: flex-end;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .leader-stat-amount {
+                font-size: 2.25rem;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .leader-stat-amount {
+                font-size: 1.5rem;
+            }
+        }
+
+        .leader-stat-team-logo-container {
+            display: flex;
+        }
+        
+        .marquee {
+            display: none;
+            overflow: hidden;
+            user-select: none;
+            width: 100%;
+        }
+
+        .marquee-group {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 5rem;
+            min-width: 100%;
+            min-height: 100%;
+            animation: scroll 35s linear infinite;
+        }
+
+        @media screen and (max-height: 1439px) {
+            .marquee-group {
+                gap: 3.75rem;
+            }
+        }
+
+        @media screen and (max-height: 1079px) {
+            .marquee-group {
+                gap: 2.5rem;
+            }
+        }
+        
+        @keyframes logoentrance {
+            0% {
+                transform: translateY(250px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes entrance {
+            0% {
+                opacity: 0;
+                transform: rotateY(100deg);
+                transform-origin: left;
+            }
+
+            100% {
+                opacity: 1;
+                transform: rotateY(0);
+                transform-origin: left;
+            }
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(25%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticker-background ticker-container">
+        <img src="https://i.imgur.com/TaKg7Kt.png" class="league-logo" id="logo">
+        <div class="team">
+            <div class="team-info">
+                <img class="team-logo" id="awayLogo">
+                <div class="main-text scoreboard-text" id="awayTeam">
+                </div>
+                <div class="season">
+                    <div class="space-filler"></div>
+                    <div class="team-season main-text scoreboard-text" id="awaySeason"></div>
+                </div>
+            </div>
+            <div class="team-score main-text scoreboard-text" id="awayScore"></div>
+        </div>
+        <div class="team">
+            <div class="team-info">
+                <img class="team-logo" id="homeLogo">
+                <div class="main-text scoreboard-text" id="homeTeam">
+                </div>
+                <div class="season">
+                    <div class="space-filler"></div>
+                    <div class="team-season main-text scoreboard-text" id="homeSeason"></div>
+                </div>
+            </div>
+            <div class="team-score main-text scoreboard-text" id="homeScore"></div>
+        </div>
+        <div class="bookend-container">
+            <div class="main-text bookend-text" id="bookend-text">
+            </div>
+        </div>
+    </div>
+    <div class="ticker-background marquee-container">
+        <div class="marquee">
+            <div class="marquee-group">
+                <div class="leader-container">
+                    <div class="leader-rank">1.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-1">
+                    <div class="leader-stat-amount" id="leader-stat-1"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">2.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-2">
+                    <div class="leader-stat-amount" id="leader-stat-2"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">3.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-3">
+                    <div class="leader-stat-amount" id="leader-stat-3"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">4.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-4">
+                    <div class="leader-stat-amount" id="leader-stat-4"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">5.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-5">
+                    <div class="leader-stat-amount" id="leader-stat-5"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">6.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-6">
+                    <div class="leader-stat-amount" id="leader-stat-6"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">7.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-7">
+                    <div class="leader-stat-amount" id="leader-stat-7"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">8.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-8">
+                    <div class="leader-stat-amount" id="leader-stat-8"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">9.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-9">
+                    <div class="leader-stat-amount" id="leader-stat-9"></div>
+                </div>
+                <div class="leader-container">
+                    <div class="leader-rank">10.</div>
+                    <img class="leader-stat-team-logo" id="leader-stat-logo-10">
+                    <div class="leader-stat-amount" id="leader-stat-10"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const xblBoxScoresUrl = "https://sheets.googleapis.com/v4/spreadsheets/1x5vwIVqk3-vEypu6dQb9Vb3kzVl9i2tA_zTcDK4I9LU/values/Box%20Scores?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const xblStandingsUrl = "https://sheets.googleapis.com/v4/spreadsheets/1x5vwIVqk3-vEypu6dQb9Vb3kzVl9i2tA_zTcDK4I9LU/values/Standings?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const xblHittingUrl = "https://sheets.googleapis.com/v4/spreadsheets/1x5vwIVqk3-vEypu6dQb9Vb3kzVl9i2tA_zTcDK4I9LU/values/Hitting?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const xblPitchingUrl = "https://sheets.googleapis.com/v4/spreadsheets/1x5vwIVqk3-vEypu6dQb9Vb3kzVl9i2tA_zTcDK4I9LU/values/Pitching?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaaBoxScoresUrl = "https://sheets.googleapis.com/v4/spreadsheets/1Dq7fLYeqsvAbwljnzcyhNQ4s2bDeaZky1pQeSJQdAps/values/Box%20Scores?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaaStandingsUrl = "https://sheets.googleapis.com/v4/spreadsheets/1Dq7fLYeqsvAbwljnzcyhNQ4s2bDeaZky1pQeSJQdAps/values/Standings?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaaHittingUrl = "https://sheets.googleapis.com/v4/spreadsheets/1Dq7fLYeqsvAbwljnzcyhNQ4s2bDeaZky1pQeSJQdAps/values/Hitting?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaaPitchingUrl = "https://sheets.googleapis.com/v4/spreadsheets/1Dq7fLYeqsvAbwljnzcyhNQ4s2bDeaZky1pQeSJQdAps/values/Pitching?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaBoxScoresUrl = "https://sheets.googleapis.com/v4/spreadsheets/14HmPir8MqsTyQE4BF3nxZVjsJL1MFACto4RDpH9eKqQ/values/Box%20Scores?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaStandingsUrl = "https://sheets.googleapis.com/v4/spreadsheets/14HmPir8MqsTyQE4BF3nxZVjsJL1MFACto4RDpH9eKqQ/values/Standings?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaHittingUrl = "https://sheets.googleapis.com/v4/spreadsheets/14HmPir8MqsTyQE4BF3nxZVjsJL1MFACto4RDpH9eKqQ/values/Hitting?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const aaPitchingUrl = "https://sheets.googleapis.com/v4/spreadsheets/14HmPir8MqsTyQE4BF3nxZVjsJL1MFACto4RDpH9eKqQ/values/Pitching?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+        const logosUrl = "https://sheets.googleapis.com/v4/spreadsheets/1sMuZIiKGNxOG816mBpdYCHyogIlet_XPMBzF8YWFUus/values/Sheet1?key=AIzaSyA0I_neFlMHnG6lOpQhmuoEad3kHCcQCc4";
+
+        const xblLogoUrl = "https://i.imgur.com/TaKg7Kt.png";
+        const aaaLogoUrl = "https://i.imgur.com/xmunM5b.png";
+        const aaLogoUrl = "https://i.imgur.com/6e0NYVE.png";
+        let teamLogos = {};
+
+        let recentXBLScores = [];
+        let recentAAAScores = [];
+        let recentAAScores = [];
+
+        let xblStandings = {};
+        let aaaStandings = {};
+        let aaStandings = {};
+
+        let xblHrLeaders = [];
+        let aaaHrLeaders = [];
+        let aaHrLeaders = [];
+        
+        let xblKLeaders = [];
+        let aaaKLeaders = [];
+        let aaKLeaders = [];
+        
+        let scoreIndex = 0; // loops 0 - 5 for recent scores
+        let leagueIndex = 0; // 0 = XBL, 1 = AAA, 2 = AA
+        let leaderboardStatTypeIndex = 0; // 0 = Ks, 1 = Homeruns
+
+        let visibleLeagueIndex;
+        let visibleScores;
+        let visibleStandings;
+        let visibleHrLeaders;
+        let visibleKLeaders;
+        
+        async function updateTicker(leagueIndex) {
+            for (const element of document.getElementsByClassName('team-info')) {
+                element.style.display = 'none';
+            }
+            for (const element of document.getElementsByClassName('team-logo')) {
+                element.style.display = 'none';
+            }
+            for (const element of document.getElementsByClassName('scoreboard-text')) {
+                element.style.display = 'none';
+            }
+
+            await sleep(100);
+
+            if (visibleLeagueIndex != leagueIndex) {
+                visibleLeagueIndex = leagueIndex;
+
+                if (leagueIndex === 0) {
+                    switchLeaderboardStatType();
+                }
+
+                document.getElementById('logo').style.display = 'none';
+                for (const element of document.getElementsByClassName('marquee')) {
+                    element.style.display = 'none';
+                }
+                for (const element of document.getElementsByClassName('bookend-text')) {
+                    element.style.display = 'none';
+                }
+
+                switch (leagueIndex) {
+                    case 0: {
+                        visibleScores = recentXBLScores;
+                        visibleStandings = xblStandings;
+                        document.getElementById('logo').src = xblLogoUrl;
+                        break;
+                    }
+                    case 1: {
+                        visibleScores = recentAAAScores;
+                        visibleStandings = aaaStandings;
+                        document.getElementById('logo').src = aaaLogoUrl;
+                        break;
+                    }
+                    case 2: {
+                        visibleScores = recentAAScores;
+                        visibleStandings = aaStandings;
+                        document.getElementById('logo').src = aaLogoUrl;
+                        break;
+                    }
+                }
+                await sleep(100);
+                document.getElementById('logo').style.display = 'inline';
+                setLeagueData();
+                setLeaderboard();
+                await sleep(2000);
+
+                for (const element of document.getElementsByClassName('marquee')) {
+                    element.style.display = 'flex';
+                }
+                for (const element of document.getElementsByClassName('bookend-text')) {
+                    element.style.display = 'inline-block';
+                }
+            }
+
+            const score = visibleScores[scoreIndex];
+            const awayTeam = score.awayTeam;
+            const awayScore = score.awayScore;
+            const homeScore = score.homeScore;
+            const homeTeam = score.homeTeam;
+            
+            document.getElementById('awayLogo').src = teamLogos[score.awayTeam];
+            document.getElementById('awayTeam').textContent = `${awayTeam}`;
+            document.getElementById('awaySeason').textContent = `(${visibleStandings[awayTeam].wins} - ${visibleStandings[awayTeam].losses})`;
+            document.getElementById('awayScore').textContent = `${awayScore}`;
+            document.getElementById('homeLogo').src = teamLogos[score.homeTeam];
+            document.getElementById('homeTeam').textContent = `${homeTeam}`;
+            document.getElementById('homeSeason').textContent = `(${visibleStandings[homeTeam].wins} - ${visibleStandings[homeTeam].losses})`;
+            document.getElementById('homeScore').textContent = `${homeScore}`;
+
+
+            for (const element of document.getElementsByClassName('team-info')) {
+                element.style.display = 'flex';
+            }
+            for (const element of document.getElementsByClassName('team-info')) {
+                element.style.display = 'flex';
+            }
+            for (const element of document.getElementsByClassName('team-logo')) {
+                element.style.display = 'flex';
+            }
+            for (const element of document.getElementsByClassName('scoreboard-text')) {
+                element.style.display = 'flex';
+            }
+
+            scoreIndex = scoreIndex === 5 ? 0 : scoreIndex + 1;
+        }
+
+        function refreshData() {
+            fetch(xblBoxScoresUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { recentXBLScores = populateScores(json); });
+
+            fetch(xblStandingsUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { xblStandings = populateStandings(json); });
+
+            fetch(xblHittingUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { xblHrLeaders = populateStatLeaders(json, 7); });
+
+            fetch(xblPitchingUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { xblKLeaders = populateStatLeaders(json, 9); });
+
+            fetch(aaaBoxScoresUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { recentAAAScores = populateScores(json); });
+
+            fetch(aaaStandingsUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { aaaStandings = populateStandings(json); });
+
+            fetch(aaaHittingUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { aaaHrLeaders = populateStatLeaders(json, 7); });
+
+            fetch(aaaPitchingUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { aaaKLeaders = populateStatLeaders(json, 9); });
+
+            fetch(aaBoxScoresUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { recentAAScores = populateScores(json); });
+
+            fetch(aaStandingsUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { aaStandings = populateStandings(json, true); });
+
+            fetch(aaHittingUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { aaHrLeaders = populateStatLeaders(json, 7); });
+
+            fetch(aaPitchingUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => { aaKLeaders = populateStatLeaders(json, 9); });
+        }
+
+        function populateScores(json) {
+            let scores = [];
+            let gameIndex = json.values.length - 1;
+            for (let i = 0; i < 6; i++) {
+                const boxScore = json.values[gameIndex];
+
+                scores[i] = {
+                    awayTeam: boxScore[1],
+                    awayScore: boxScore[2],
+                    homeScore: boxScore[3],
+                    homeTeam: boxScore[4]
+                };
+
+                gameIndex--;
+            }
+            return scores;
+        }
+
+        function populateStandings(json, isAA) {
+            let standings = {};
+            for (let i = 1; i < json.values.length; i++) {
+                const rank = json.values[i][0];
+                const team = json.values[i][1];
+                const wins = json.values[i][isAA ? 4 : 2];
+                const losses = json.values[i][isAA ? 5 : 3];
+                standings = {
+                    ...standings,
+                    [`${team}`]: { rank, wins, losses }
+                }
+            }
+            return standings;
+        }
+
+        // Row 7 of hitting = HRs
+        // Row 9 of pitching = Ks
+        function populateStatLeaders(json, statRowIndex) {
+            let statLeaders = [];
+            for (let i = 1; i < json.values.length; i++) {
+                const row = json.values[i];
+                statLeaders[i] = {
+                    team: row[1],
+                    value: Number.parseInt(row[statRowIndex])
+                }
+            }
+            return statLeaders
+                .sort((a, b) => a.value < b.value)
+                .slice(0, 10);
+        }
+
+        function switchLeagues() {
+            leagueIndex = leagueIndex == 2 ? 0 : leagueIndex + 1;
+        }
+
+        function switchLeaderboardStatType() {
+            leaderboardStatTypeIndex = leaderboardStatTypeIndex === 0 ? 1 : 0;
+        }
+
+        function setLeagueData() {
+            switch (leagueIndex) {
+                case 0: {
+                    visibleScores = recentXBLScores;
+                    visibleStandings = xblStandings;
+                    visibleHrLeaders = xblHrLeaders;
+                    visibleKLeaders = xblKLeaders;
+                    break;
+                }
+                case 1: {
+                    visibleScores = recentAAAScores;
+                    visibleStandings = aaaStandings;
+                    visibleHrLeaders = aaaHrLeaders;
+                    visibleKLeaders = aaaKLeaders;
+                    break;
+                }
+                case 2: {
+                    visibleScores = recentAAScores;
+                    visibleStandings = aaStandings;
+                    visibleHrLeaders = aaHrLeaders;
+                    visibleKLeaders = aaKLeaders;
+                    break;
+                }
+            }
+        }
+
+        function setLeaderboard() {
+            let leaderboardStatsTitle;
+            let leaderboardStats;
+
+            switch (leaderboardStatTypeIndex) {
+                case 0: {
+                    leaderboardStatsTitle = 'K Leaders';
+                    leaderboardStats = visibleKLeaders;
+                    break;
+                }
+                case 1: {
+                    leaderboardStatsTitle = 'HR Leaders';
+                    leaderboardStats = visibleHrLeaders;
+                    break;
+                }
+            }
+
+            document.getElementById('bookend-text').textContent = leaderboardStatsTitle
+
+            for (let i = 0; i < 10; i++) {
+                document.getElementById(`leader-stat-logo-${i+1}`).src = teamLogos[leaderboardStats[i].team];
+                document.getElementById(`leader-stat-${i+1}`).textContent = leaderboardStats[i].value;
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms))
+        }
+
+        fetch(logosUrl, { "method": "GET" })
+            .then((response) => { return response.json(); })
+            .then((json) => {
+                for (let i = 1; i < json.values.length; i++) {
+                    const team1 = json.values[i][0];
+                    const teamLogoUrl1 = json.values[i][1];
+                    const team2 = json.values[i][2];
+                    const teamLogoUrl2 = json.values[i][3];
+                    const team3 = json.values[i][4];
+                    const teamLogoUrl3 = json.values[i][5];
+                    teamLogos = {
+                        ...teamLogos,
+                        [`${team1}`]: teamLogoUrl1,
+                        [`${team2}`]: teamLogoUrl2,
+                        [`${team3}`]: teamLogoUrl3
+                    };
+                }
+            });
+        refreshData();
+        setInterval(async () => await updateTicker(leagueIndex), 11000); // Update every ~10 seconds
+        setInterval(switchLeagues, 66000); // Switch leagues every ~minute
+        setInterval(refreshData, 300000); // Refresh scores every 5 minutes
+    </script>
+</body>
+</html>
