@@ -547,54 +547,54 @@
             scoreIndex = scoreIndex === 5 ? 0 : scoreIndex + 1;
         }
 
-        function refreshData() {
-            fetch(xblBoxScoresUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { recentXBLScores = populateScores(json); });
+        async function refreshData() {
+            let dataPromises = [];
 
-            fetch(xblStandingsUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { xblStandings = populateStandings(json); });
+            const requests = {
+                [xblBoxScoresUrl]: (json) => { recentXBLScores = populateScores(json); },
+                [xblStandingsUrl]: (json) => { xblStandings = populateStandings(json); },
+                [xblHittingUrl]: (json) => { xblHrLeaders = populateStatLeaders(json, 7); },
+                [xblPitchingUrl]: (json) => { xblKLeaders = populateStatLeaders(json, 9); },
+                [aaaBoxScoresUrl]: (json) => { recentAAAScores = populateScores(json); },
+                [aaaStandingsUrl]: (json) => { aaaStandings = populateStandings(json); },
+                [aaaHittingUrl]: (json) => { aaaHrLeaders = populateStatLeaders(json, 7); },
+                [aaaPitchingUrl]: (json) => { aaaKLeaders = populateStatLeaders(json, 9); },
+                [aaBoxScoresUrl]: (json) => { recentAAScores = populateScores(json, true); },
+                [aaStandingsUrl]: (json) => { aaStandings = populateStandings(json); },
+                [aaHittingUrl]: (json) => { aaHrLeaders = populateStatLeaders(json, 7); },
+                [aaPitchingUrl]: (json) => { aaKLeaders = populateStatLeaders(json, 9); },
+            };
 
-            fetch(xblHittingUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { xblHrLeaders = populateStatLeaders(json, 7); });
+            for (const [url, process] of Object.entries(requests)) {
+                dataPromises.push(
+                    fetch(url, { "method": "GET" })
+                        .then((response) => { return response.json(); })
+                        .then((json) => process(json))    
+                );
+            }
 
-            fetch(xblPitchingUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { xblKLeaders = populateStatLeaders(json, 9); });
+            dataPromises.push(
+                fetch(logosUrl, { "method": "GET" })
+                    .then((response) => { return response.json(); })
+                    .then((json) => {
+                        for (let i = 1; i < json.values.length; i++) {
+                            const team1 = json.values[i][0];
+                            const teamLogoUrl1 = json.values[i][1];
+                            const team2 = json.values[i][2];
+                            const teamLogoUrl2 = json.values[i][3];
+                            const team3 = json.values[i][4];
+                            const teamLogoUrl3 = json.values[i][5];
+                            teamLogos = {
+                                ...teamLogos,
+                                [`${team1}`]: teamLogoUrl1,
+                                [`${team2}`]: teamLogoUrl2,
+                                [`${team3}`]: teamLogoUrl3
+                            };
+                        }
+                    })
+            );
 
-            fetch(aaaBoxScoresUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { recentAAAScores = populateScores(json); });
-
-            fetch(aaaStandingsUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { aaaStandings = populateStandings(json); });
-
-            fetch(aaaHittingUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { aaaHrLeaders = populateStatLeaders(json, 7); });
-
-            fetch(aaaPitchingUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { aaaKLeaders = populateStatLeaders(json, 9); });
-
-            fetch(aaBoxScoresUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { recentAAScores = populateScores(json); });
-
-            fetch(aaStandingsUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { aaStandings = populateStandings(json, true); });
-
-            fetch(aaHittingUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { aaHrLeaders = populateStatLeaders(json, 7); });
-
-            fetch(aaPitchingUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => { aaKLeaders = populateStatLeaders(json, 9); });
+            return await Promise.all(dataPromises);
         }
 
         function populateScores(json) {
@@ -709,26 +709,9 @@
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms))
         }
-
-        fetch(logosUrl, { "method": "GET" })
-            .then((response) => { return response.json(); })
-            .then((json) => {
-                for (let i = 1; i < json.values.length; i++) {
-                    const team1 = json.values[i][0];
-                    const teamLogoUrl1 = json.values[i][1];
-                    const team2 = json.values[i][2];
-                    const teamLogoUrl2 = json.values[i][3];
-                    const team3 = json.values[i][4];
-                    const teamLogoUrl3 = json.values[i][5];
-                    teamLogos = {
-                        ...teamLogos,
-                        [`${team1}`]: teamLogoUrl1,
-                        [`${team2}`]: teamLogoUrl2,
-                        [`${team3}`]: teamLogoUrl3
-                    };
-                }
-            });
-        refreshData();
+        
+       refreshData()
+            .then(updateTicker);
         setInterval(async () => await updateTicker(leagueIndex), 11000); // Update every ~10 seconds
         setInterval(switchLeagues, 66000); // Switch leagues every ~minute
         setInterval(refreshData, 300000); // Refresh scores every 5 minutes
