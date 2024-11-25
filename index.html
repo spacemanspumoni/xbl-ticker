@@ -711,8 +711,8 @@
         }
         
        refreshData()
-            .then(async () => await updateTicker(leagueIndex));
-        setInterval(async () => await updateTicker(leagueIndex), 11000); // Update every ~10 seconds
+            .then(async () => await updateTicker(leagueIndex))
+            .then(setInterval(async () => await updateTicker(leagueIndex), 11000)); // Update every ~10 seconds
         setInterval(switchLeagues, 66000); // Switch leagues every ~minute
         setInterval(refreshData, 300000); // Refresh scores every 5 minutes
     </script>
