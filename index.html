@@ -176,7 +176,7 @@
         }
 
         .leader-container {
-            display: flex;
+            display: none;
             min-height: 72px;
         }
 
@@ -255,7 +255,6 @@
         }
         
         .marquee {
-            display: none;
             overflow: hidden;
             user-select: none;
             width: 100%;
@@ -403,6 +402,9 @@
                     <img class="leader-stat-team-logo" id="leader-stat-logo-10">
                     <div class="leader-stat-amount" id="leader-stat-10"></div>
                 </div>
+                <div class="leader-container" id="custom-marquee-text-container">
+                    <div class="leader-stat-amount" id="custom-marquee-text"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -425,6 +427,12 @@
         const xblLogoUrl = "https://i.imgur.com/TaKg7Kt.png";
         const aaaLogoUrl = "https://i.imgur.com/xmunM5b.png";
         const aaLogoUrl = "https://i.imgur.com/6e0NYVE.png";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const marqueeTitle = urlParams.get('marqueeTitle');
+        const marqueeText = urlParams.get('marqueeText');
+        const showCustomMarquee = !!marqueeTitle;
+
         let teamLogos = {};
 
         let recentXBLScores = [];
@@ -455,7 +463,7 @@
         let visibleScores;
         let visibleStandings;
         let visibleHrLeaders;
-        let visibleKLeaders;
+        let visibleKLeaders;        
         let visibleBaLeaders;
         
         async function updateTicker(leagueIndex) {
@@ -479,24 +487,47 @@
                 }
 
                 document.getElementById('logo').style.display = 'none';
-                for (const element of document.getElementsByClassName('marquee')) {
+                for (const element of document.getElementsByClassName('leader-container')) {
                     element.style.display = 'none';
                 }
                 for (const element of document.getElementsByClassName('bookend-text')) {
                     element.style.display = 'none';
                 }
 
+                switch (leagueIndex) {
+                    case 0: {
+                        visibleScores = recentXBLScores;
+                        visibleStandings = xblStandings;
+                        document.getElementById('logo').src = xblLogoUrl;
+                        break;
+                    }
+                    case 1: {
+                        visibleScores = recentAAAScores;
+                        visibleStandings = aaaStandings;
+                        document.getElementById('logo').src = aaaLogoUrl;
+                        break;
+                    }
+                    case 2: {
+                        visibleScores = recentAAScores;
+                        visibleStandings = aaStandings;
+                        document.getElementById('logo').src = aaLogoUrl;
+                        break;
+                    }
+                }
                 await sleep(100);
 
                 setLeagueData();
-                setLeaderboard();
+                setLeaderboard();                
                 document.getElementById('logo').style.display = 'inline';
 
                 await sleep(2000);
 
-                for (const element of document.getElementsByClassName('marquee')) {
-                    element.style.display = 'flex';
+                for (const element of document.getElementsByClassName('leader-container')) {
+                    element.style.display = showCustomMarquee ? 'none' : 'flex';;
                 }
+
+                document.getElementById('custom-marquee-text-container').style.display = showCustomMarquee ? 'flex' : 'none';
+
                 for (const element of document.getElementsByClassName('bookend-text')) {
                     element.style.display = 'inline-block';
                 }
@@ -650,7 +681,10 @@
         }
 
         function switchLeaderboardStatType() {
-            leaderboardStatTypeIndex = leaderboardStatTypeIndex === 2 ? 0 : leaderboardStatTypeIndex + 1;
+            leaderboardStatTypeIndex = leaderboardStatTypeIndex === 0 ? 1 : 0;
+            if (showCustomMarquee) {
+                leaderboardStatTypeIndex = 99;
+            }
         }
 
         function setLeagueData() {
@@ -700,18 +734,24 @@
                     leaderboardStats = visibleHrLeaders;
                     break;
                 }
-                case 2: {
-                    leaderboardStatsTitle = 'BA Leaders';
-                    leaderboardStats = visibleBaLeaders;
+                case 99: {
+                    // Should only set custom attributes if they are specified as query params
+                    leaderboardStatsTitle = marqueeTitle;
+                    leaderboardStats = visibleHrLeaders;
                     break;
                 }
             }
 
             document.getElementById('bookend-text').textContent = leaderboardStatsTitle
 
-            for (let i = 0; i < 10; i++) {
-                document.getElementById(`leader-stat-logo-${i+1}`).src = teamLogos[leaderboardStats[i].team];
-                document.getElementById(`leader-stat-${i+1}`).textContent = leaderboardStats[i].value;
+            if (leaderboardStatTypeIndex === 99) {
+                document.getElementById('custom-marquee-text').textContent = marqueeText;
+            }
+            else { 
+                for (let i = 0; i < 10; i++) {
+                    document.getElementById(`leader-stat-logo-${i+1}`).src = teamLogos[leaderboardStats[i].team];
+                    document.getElementById(`leader-stat-${i+1}`).textContent = leaderboardStats[i].value;
+                }
             }
         }
 
