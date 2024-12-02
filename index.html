@@ -438,6 +438,10 @@
         let xblHrLeaders = [];
         let aaaHrLeaders = [];
         let aaHrLeaders = [];
+
+        let xblBaLeaders = [];
+        let aaaBaLeaders = [];
+        let aaBaLeaders = [];
         
         let xblKLeaders = [];
         let aaaKLeaders = [];
@@ -445,13 +449,14 @@
         
         let scoreIndex = 0; // loops 0 - 5 for recent scores
         let leagueIndex = 0; // 0 = XBL, 1 = AAA, 2 = AA
-        let leaderboardStatTypeIndex = 0; // 0 = Ks, 1 = Homeruns
+        let leaderboardStatTypeIndex = 0; // 0 = Ks, 1 = Homeruns, 2 = Batting Avg
 
         let visibleLeagueIndex;
         let visibleScores;
         let visibleStandings;
         let visibleHrLeaders;
         let visibleKLeaders;
+        let visibleBaLeaders;
         
         async function updateTicker(leagueIndex) {
             for (const element of document.getElementsByClassName('team-info')) {
@@ -483,20 +488,14 @@
 
                 switch (leagueIndex) {
                     case 0: {
-                        visibleScores = recentXBLScores;
-                        visibleStandings = xblStandings;
                         document.getElementById('logo').src = xblLogoUrl;
                         break;
                     }
                     case 1: {
-                        visibleScores = recentAAAScores;
-                        visibleStandings = aaaStandings;
                         document.getElementById('logo').src = aaaLogoUrl;
                         break;
                     }
                     case 2: {
-                        visibleScores = recentAAScores;
-                        visibleStandings = aaStandings;
                         document.getElementById('logo').src = aaLogoUrl;
                         break;
                     }
@@ -553,15 +552,15 @@
             const requests = {
                 [xblBoxScoresUrl]: (json) => { recentXBLScores = populateScores(json); },
                 [xblStandingsUrl]: (json) => { xblStandings = populateStandings(json); },
-                [xblHittingUrl]: (json) => { xblHrLeaders = populateStatLeaders(json, 7); },
+                [xblHittingUrl]: (json) => { xblHrLeaders = populateStatLeaders(json, 7); xblBaLeaders = populateStatLeaders(json, 2); },
                 [xblPitchingUrl]: (json) => { xblKLeaders = populateStatLeaders(json, 9); },
                 [aaaBoxScoresUrl]: (json) => { recentAAAScores = populateScores(json); },
                 [aaaStandingsUrl]: (json) => { aaaStandings = populateStandings(json); },
-                [aaaHittingUrl]: (json) => { aaaHrLeaders = populateStatLeaders(json, 7); },
+                [aaaHittingUrl]: (json) => { aaaHrLeaders = populateStatLeaders(json, 7); aaaBaLeaders = populateStatLeaders(json, 2); },
                 [aaaPitchingUrl]: (json) => { aaaKLeaders = populateStatLeaders(json, 9); },
                 [aaBoxScoresUrl]: (json) => { recentAAScores = populateScores(json); },
                 [aaStandingsUrl]: (json) => { aaStandings = populateStandings(json, true); },
-                [aaHittingUrl]: (json) => { aaHrLeaders = populateStatLeaders(json, 7); },
+                [aaHittingUrl]: (json) => { aaHrLeaders = populateStatLeaders(json, 7); aaBaLeaders = populateStatLeaders(json, 2); },
                 [aaPitchingUrl]: (json) => { aaKLeaders = populateStatLeaders(json, 9); },
             };
 
@@ -630,21 +629,32 @@
             return standings;
         }
 
+        // Row 2 of hitting = BA
         // Row 7 of hitting = HRs
         // Row 9 of pitching = Ks
         function populateStatLeaders(json, statRowIndex) {
+            const parseFloat = statRowIndex === 2;
             let statLeaders = [];
             for (let i = 1; i < json.values.length; i++) {
                 const row = json.values[i];
                 statLeaders[i] = {
                     team: row[1],
-                    value: Number.parseInt(row[statRowIndex])
+                    value: parseFloat ? Number.parseFloat(row[statRowIndex]) : Number.parseInt(row[statRowIndex])
                 }
             }
 
-           return statLeaders
+            const sortedLeaders = statLeaders
                 .sort((a, b) => b.value - a.value)
                 .slice(0, 10);
+
+            if (parseFloat) {
+                return sortedLeaders.map(l => ({
+                    team: l.team,
+                    value: String(l.value.toFixed(3)).slice(String(l.value.toFixed(3)).indexOf('.'))
+                }))
+            }
+
+            return sortedLeaders;
         }
 
         function switchLeagues() {
@@ -652,7 +662,7 @@
         }
 
         function switchLeaderboardStatType() {
-            leaderboardStatTypeIndex = leaderboardStatTypeIndex === 0 ? 1 : 0;
+            leaderboardStatTypeIndex = leaderboardStatTypeIndex === 2 ? 0 : leaderboardStatTypeIndex + 1;
         }
 
         function setLeagueData() {
@@ -662,6 +672,7 @@
                     visibleStandings = xblStandings;
                     visibleHrLeaders = xblHrLeaders;
                     visibleKLeaders = xblKLeaders;
+                    visibleBaLeaders = xblBaLeaders;
                     break;
                 }
                 case 1: {
@@ -669,6 +680,7 @@
                     visibleStandings = aaaStandings;
                     visibleHrLeaders = aaaHrLeaders;
                     visibleKLeaders = aaaKLeaders;
+                    visibleBaLeaders = aaaBaLeaders;
                     break;
                 }
                 case 2: {
@@ -676,6 +688,7 @@
                     visibleStandings = aaStandings;
                     visibleHrLeaders = aaHrLeaders;
                     visibleKLeaders = aaKLeaders;
+                    visibleBaLeaders = aaBaLeaders;
                     break;
                 }
             }
@@ -694,6 +707,11 @@
                 case 1: {
                     leaderboardStatsTitle = 'HR Leaders';
                     leaderboardStats = visibleHrLeaders;
+                    break;
+                }
+                case 2: {
+                    leaderboardStatsTitle = 'BA Leaders';
+                    leaderboardStats = visibleBaLeaders;
                     break;
                 }
             }
