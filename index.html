@@ -486,24 +486,12 @@
                     element.style.display = 'none';
                 }
 
-                switch (leagueIndex) {
-                    case 0: {
-                        document.getElementById('logo').src = xblLogoUrl;
-                        break;
-                    }
-                    case 1: {
-                        document.getElementById('logo').src = aaaLogoUrl;
-                        break;
-                    }
-                    case 2: {
-                        document.getElementById('logo').src = aaLogoUrl;
-                        break;
-                    }
-                }
                 await sleep(100);
-                document.getElementById('logo').style.display = 'inline';
+
                 setLeagueData();
                 setLeaderboard();
+                document.getElementById('logo').style.display = 'inline';
+
                 await sleep(2000);
 
                 for (const element of document.getElementsByClassName('marquee')) {
@@ -668,6 +656,7 @@
         function setLeagueData() {
             switch (leagueIndex) {
                 case 0: {
+                    document.getElementById('logo').src = xblLogoUrl;
                     visibleScores = recentXBLScores;
                     visibleStandings = xblStandings;
                     visibleHrLeaders = xblHrLeaders;
@@ -676,6 +665,7 @@
                     break;
                 }
                 case 1: {
+                    document.getElementById('logo').src = aaaLogoUrl;
                     visibleScores = recentAAAScores;
                     visibleStandings = aaaStandings;
                     visibleHrLeaders = aaaHrLeaders;
@@ -684,6 +674,7 @@
                     break;
                 }
                 case 2: {
+                    document.getElementById('logo').src = aaLogoUrl;
                     visibleScores = recentAAScores;
                     visibleStandings = aaStandings;
                     visibleHrLeaders = aaHrLeaders;
