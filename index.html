@@ -540,16 +540,16 @@
             const requests = {
                 [xblBoxScoresUrl]: (json) => { recentXBLScores = populateScores(json); },
                 [xblStandingsUrl]: (json) => { xblStandings = populateStandings(json); },
-                [xblHittingUrl]: (json) => { xblHrLeaders = populateStatLeaders(json, 7); xblBaLeaders = populateStatLeaders(json, 2); },
-                [xblPitchingUrl]: (json) => { xblKLeaders = populateStatLeaders(json, 9); },
+                [xblHittingUrl]: (json) => { xblHrLeaders = populateStatLeaders(json, 8); xblBaLeaders = populateStatLeaders(json, 2); },
+                [xblPitchingUrl]: (json) => { xblKLeaders = populateStatLeaders(json, 10); },
                 [aaaBoxScoresUrl]: (json) => { recentAAAScores = populateScores(json); },
                 [aaaStandingsUrl]: (json) => { aaaStandings = populateStandings(json); },
-                [aaaHittingUrl]: (json) => { aaaHrLeaders = populateStatLeaders(json, 7); aaaBaLeaders = populateStatLeaders(json, 2); },
-                [aaaPitchingUrl]: (json) => { aaaKLeaders = populateStatLeaders(json, 9); },
+                [aaaHittingUrl]: (json) => { aaaHrLeaders = populateStatLeaders(json, 8); aaaBaLeaders = populateStatLeaders(json, 2); },
+                [aaaPitchingUrl]: (json) => { aaaKLeaders = populateStatLeaders(json, 10); },
                 [aaBoxScoresUrl]: (json) => { recentAAScores = populateScores(json); },
                 [aaStandingsUrl]: (json) => { aaStandings = populateStandings(json, true); },
-                [aaHittingUrl]: (json) => { aaHrLeaders = populateStatLeaders(json, 7); aaBaLeaders = populateStatLeaders(json, 2); },
-                [aaPitchingUrl]: (json) => { aaKLeaders = populateStatLeaders(json, 9); },
+                [aaHittingUrl]: (json) => { aaHrLeaders = populateStatLeaders(json, 8); aaBaLeaders = populateStatLeaders(json, 2); },
+                [aaPitchingUrl]: (json) => { aaKLeaders = populateStatLeaders(json, 10); },
             };
 
             for (const [url, process] of Object.entries(requests)) {
@@ -618,8 +618,8 @@
         }
 
         // Row 2 of hitting = BA
-        // Row 7 of hitting = HRs
-        // Row 9 of pitching = Ks
+        // Row 8 of hitting = HRs
+        // Row 10 of pitching = Ks
         function populateStatLeaders(json, statRowIndex) {
             const parseFloat = statRowIndex === 2;
             let statLeaders = [];
